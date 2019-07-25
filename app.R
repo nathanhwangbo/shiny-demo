@@ -3,24 +3,26 @@ library(tidyverse)
 library(plotly)
 data("mtcars")
 
+source('../lubridate_examples/merry_christmas.R')
 
-
-
-# ui <- fluidPage(
-#   fluidRow(
-#     h1(column(12, 'hello')),
-#     h2(column(12, ''))
-#   )
-# )
 
 
 ui <- fluidPage(
   tabsetPanel(
-    tabPanel('Reactivity',
-             mainPanel(
-               actionButton(inputId = 'dice', label = 'Who is the best', style = 'background-color:green; color:white; font-size:50px; '),
-               h1(textOutput(outputId = 'names'))
+    tabPanel('Inputs and Buttons',
+             titlePanel('When is your favorite holiday'),
+             fluidRow(
+               column(12, br()),
+               column(4, 
+                      radioButtons(inputId = 'calendar', label = 'Holidays',
+                                       choices = c('Christmas'))),
+               column(4, textInput(inputId = 'year', 'Choose a year')),
+               column(4, actionButton(inputId = 'update', label = 'GO!'))
+               ),
+             fluidRow(
+               column(12, h1(textOutput(outputId = 'day'), style= 'color:green'))
              )
+               
              ),
     tabPanel("Interactive Plots",
              headerPanel(
@@ -67,29 +69,12 @@ server <- function(input, output, session){
     'mtcars'
   })
   
-  names <- c('Nathan','Lily', 'Jeremy', 'Julien', 'Robert', 'Meilin')
-  output$names <- renderText('Click the button')
-  
- # observeEvent(input$dice,{
- #    output$names <- renderText(sample(names,1))
- #  })
-  
-  # best <- reactive({
-  #   if(input$dice){
-  #     sample(names, 1)
-  #   }
-  #   else{
-  #     'click the button'
-  #   }
-  # })
-  
-  best <- eventReactive(input$dice,{
-    sample(names, 1)
+ date <- eventReactive(input$update,{
+    christmas_day(input$year)
   })
-  
-  
-  output$names <- renderText({
-    best()
+
+  output$day <- renderPrint({
+    date()
   })
   
 }
