@@ -3,11 +3,22 @@ library(tidyverse)
 library(plotly)
 data("mtcars")
 
+
+
+
+# ui <- fluidPage(
+#   fluidRow(
+#     h1(column(12, 'hello')),
+#     h2(column(12, ''))
+#   )
+# )
+
+
 ui <- fluidPage(
   tabsetPanel(
     tabPanel('Reactivity',
              mainPanel(
-               actionButton(inputId = 'dice', label = 'Who is the best', style = 'background-color:green; color:white'),
+               actionButton(inputId = 'dice', label = 'Who is the best', style = 'background-color:green; color:white; font-size:50px; '),
                h1(textOutput(outputId = 'names'))
              )
              ),
@@ -33,13 +44,13 @@ ui <- fluidPage(
                mainPanel(
                  plotlyOutput(outputId = 'carsplot')
                )
-               
+
              )
-             
-             
+
+
     )
-             
-      
+
+
     )
   )
   
@@ -53,29 +64,37 @@ server <- function(input, output, session){
     )
   
   output$header <- renderText({
-    'Hello World'
+    'mtcars'
   })
   
-  names <- c('Lily', 'Jeremy', 'Julien', 'Nathan', 'Robert')
+  names <- c('Nathan','Lily', 'Jeremy', 'Julien', 'Robert', 'Meilin')
   output$names <- renderText('Click the button')
   
  # observeEvent(input$dice,{
  #    output$names <- renderText(sample(names,1))
  #  })
   
-  best <- reactive({
-    if(input$dice){
-      sample(names, 1)
-    }
-    else{
-      'click the button'
-    }
+  # best <- reactive({
+  #   if(input$dice){
+  #     sample(names, 1)
+  #   }
+  #   else{
+  #     'click the button'
+  #   }
+  # })
+  
+  best <- eventReactive(input$dice,{
+    sample(names, 1)
   })
+  
+  
   output$names <- renderText({
     best()
   })
   
 }
+
+
 
 
 shinyApp(ui = ui, server = server)
