@@ -6,14 +6,16 @@ data("mtcars")
 source('../lubridate_examples/merry_christmas.R')
 
 
-#alternatives to fluidPage include shinydashboard::dashboardPage, navbarPage.
+#alternatives to fluidPage include shinydashboard::dashboardPage, navbarPage, renderUI
 ui <- fluidPage(
+  #alternatives to tabsetPanel include navlistPanel (can be used indep of navbarPage), and other Page ui's have their own tab panels
   tabsetPanel(
     
     tabPanel("Interactive Plots",
              headerPanel(
                textOutput(outputId = 'header')#,
              ),
+             #alternatives to sidebarLayout include fluidRow, flowLayout, splitLayout, verticalLayout
              sidebarLayout(
                sidebarPanel(
                  selectInput(
@@ -71,6 +73,8 @@ server <- function(input, output, session){
   output$header <- renderText({
     'mtcars'
   })
+  
+  
   
  date <- eventReactive(input$update,{
     christmas_day(input$year)
