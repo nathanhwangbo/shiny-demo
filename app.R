@@ -1,9 +1,37 @@
+##############################################
+
+## this general purpose script would be in global.R ##
+
+##############################################
+
 library(shiny)
 library(tidyverse)
+#intearctive plots
 library(plotly)
+
+#mock data for app
 data("mtcars")
 
-source('../lubridate_examples/merry_christmas.R')
+#this package is just for reading in the holiday script from github
+library(RCurl)
+
+## packges in more info tab
+library(shinydashboard)
+library(shinyjs)
+library(shinyWidgets)
+
+#sourcing a script from github
+RCurl::getURL('https://raw.githubusercontent.com/nathanhwangbo/lubridate_examples/master/merry_christmas.R') %>%
+  parse(text = .) %>%
+  eval
+
+
+
+####################################
+
+## the ui assignment would be in ui.R
+
+####################################
 
 
 #alternatives to fluidPage include shinydashboard::dashboardPage, navbarPage, renderUI
@@ -13,7 +41,7 @@ ui <- fluidPage(
     
     tabPanel("Interactive Plots",
              headerPanel(
-               textOutput(outputId = 'header')#,
+               textOutput(outputId = 'header')
              ),
              #alternatives to sidebarLayout include fluidRow, flowLayout, splitLayout, verticalLayout
              sidebarLayout(
@@ -54,21 +82,64 @@ ui <- fluidPage(
                column(12, h1(textOutput(outputId = 'day'), style= 'color:green'))
               )
                
+             ),
+    
+    
+    
+    
+    
+    
+    shinyWidgets::useShinydashboard(),
+    shinyjs::useShinyjs(),
+
+    tabPanel('More info',
+             titlePanel('Other Shiny Resources'),
+             fluidRow(
+               #you need the useShinydashboard() call above to use valueBoxes !
+               valueBox(value = 'shinydashboard is a popular theme',
+                        subtitle = 'shinyWidgets::useshinydashboard lets you use shinydashboard modules in other ui\'s',
+                        color = "blue",
+                        width =12)
+               
+               ),
+             fluidRow(
+               imageOutput(outputId = 'dashboard')
+               ),
+             fluidRow(
+               column(1, actionButton(inputId = 'togglePic', label = 'Click Me!')),
+               column(5,offset = 1, hidden(p(id = 'shinyjs_text' ,"shinyjs lets us use common javascript funtionality, like hiding objects")))
+               ),
+             br(),
+             br(),
+             fluidRow(
+               column(12, a(href = "https://github.com/nanxstats/awesome-shiny-extensions","click here for Nan Xiao's compiled list of shiny extension packages"))
+               )
+             
              )
 
 
 
     )
   )
+
+
+
+
+####################################
+
+## the server function would be in server.R
+
+####################################
   
 
 #input is the set of variables the user interacts with
 #output are the elements that change based on input
-server <- function(input, output, session){
-  output$carsplot <- renderPlotly(
-    ggplot(mtcars) +
+server <- function(input, output){
+  output$carsplot <- renderPlotly({
+    p <- ggplot(mtcars) +
       geom_point(aes(!!sym(input$x), !!sym(input$y)))
-    )
+    ggplotly(p)
+    })
   
   output$header <- renderText({
     'mtcars'
@@ -84,6 +155,21 @@ server <- function(input, output, session){
     date()
   })
   
+  
+  
+  
+  
+  
+  output$dashboard <- renderImage({
+    list(src = 'www/dashboard.png',
+         contentType = 'image/png')
+  }, deleteFile = FALSE)
+  
+  
+  observeEvent(input$togglePic,{
+    shinyjs::toggle(id = 'shinyjs_text')
+  })
+
 }
 
 
